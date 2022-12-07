@@ -5,15 +5,15 @@
 const express = require('express');
 
 // const notFoundHandler = require('./error-handlers/404.js');
-const errorHandler = require('./error-handlers/500.js');
+const errorHandler = require('./error-handlers/500');
 // const errorHandler = require('./error-handlers/500.js');
 const notFound = require('./error-handlers/404.js');
-const logger = require('./middleware/logger.js');
+const logger = require('./middleware/logger');
 
 
-const v1Routes = require('./routes/v1.js');
+const v1Routes = require('./v1.js');
 // Esoteric Resources-server
-const authRoutes = require('./auth/routes.js');
+const authRoutes = require('./routes');
 ///--------------------------------------
 
 const app = express();
