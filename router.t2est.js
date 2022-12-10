@@ -1,20 +1,20 @@
 'use strict';
 
-process.env.SECRET = "TEST_SECRET";
+process.env.SECRET = 'TEST_SECRET';
 
-const { db } = require('../src/models');
+const { db } = require('./src/models');
 const supertest = require('supertest');
-const server = require('../src/server').server;
+const server = require('./src/server').server;
 
 const mockRequest = supertest(server);
 
 let userData = {
-  testUser: { 
+  testUser: {
     username: 'user',
-    password: 'password' 
+    password: 'password',
   },
 };
-let accessToken = null;
+// let accessToken = null;
 
 beforeAll(async () => {
   await db.sync();

@@ -3,7 +3,7 @@
 // api-server
 
 const express = require('express');
-
+const PORT = process.env.PORT || 3002;
 // const notFoundHandler = require('./error-handlers/404.js');
 const errorHandler = require('./error-handlers/500');
 // const errorHandler = require('./error-handlers/500.js');
@@ -21,11 +21,11 @@ const app = express();
 // 3rd Party Resources
 // const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan');
+// const morgan = require('morgan');
 
 // App Level MW- auth-server
 app.use(cors());
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: true }));
 //------------------------
 
