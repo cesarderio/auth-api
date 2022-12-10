@@ -5,20 +5,20 @@ const supertest = require('supertest');
 const { server } = require('../src/server');
 const request = supertest(server);
 
-let testUser;
-let studentUser;
+let writerUser;
+let adminUser;
 
 beforeAll( async () => {
   await db.sync();
-  testUser = await users.create({
-    username: 'testUser',
+  writerUser = await users.create({
+    username: 'writer',
     password: 'pass',
-    role: 'Instructor',
+    role: 'writer',
   });
-  studentUser = await users.create({
-    username: 'student',
+  adminUser = await users.create({
+    username: 'admin',
     password: 'pass',
-    role: 'Student',
+    role: 'admin',
   });
 });
 
@@ -28,111 +28,115 @@ afterAll( async () => {
 
 describe('API / Auth Server Integration', () => {
 
-  it('handles invalid request', async () => {
-    const response = await request.get('/sale');
+  it('handles invalid requests', async () => {
+    const response = await request.get('/foo');
+
     expect(response.status).toEqual(404);
   });
 
-  // it('allows assignments to be created', async () => {
-  //   let response = await request.post('/api/assignments').send({
-  //     name: 'lab 01',
-  //     due_date: 'tomorrow',
-  //     scope: 'lab',
-  //   });
-  //   // expect(response.status).toBe(201);
-  //   expect(response.status).toBe(403);
-  //   expect(response.body.name).toEqual('lab 01');
-  // });
-
-  // it('allows RBAC assignments to be created', async () => {
-  //   let response = await request.post('/api/assignments').send({
-  //     name: 'Reading 02',
-  //     due_date: 'yesterday',
-  //     scope: 'Reading',
-  //   }).set('Authorization', `Bearer ${testUser.token}`);
-
-  //   expect(response.status).toBe(201);
-  //   expect(response.body.name).toEqual('lab 01');
-  // });
-
-  // it('allows read access', async () => {
-  //   let response = await request.get('/api/assignments');
-  //   expect(response.status).toBe(200);
-  //   expect(response.body[0].name).toEqual('lab 01');
-  // });
-
-  // it('allows RBAC read access', async () => {
-  //   let response = await request.get('/api/assignments').set('Authorization', `Bearer ${testUser.token}`);
-  //   expect(response.status).toBe(200);
-  //   expect(response.body[1].name).toEqual('Reading 02');
-  // });
-
-  // it('allows read one access', async () => {
-  //   let response = await request.get('/api/assignments/1');
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.name).toEqual('lab 01');
-  // });
-
-  // it('allows RBAC read one access', async () => {
-  //   let response = await request.get('/api/assignments/2').set('Authorization', `Bearer ${testUser.token}`);
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.name).toEqual('Reading 02');
-  // });
-
-  // it('allows assignments update ', async () => {
-  //   let response = await request.put('/api/assignments/1').send({
-  //     name: 'lab 03',
-  //     due_date: 'tomorrow',
-  //     scope: 'class lab',
-  //   });
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.name).toEqual('lab 03');
-  // });
-
-  it('restricts assignments update by Student', async () => {
-    let response = await request.put('/api/assignments/2').send({
-      name: 'Reading 15',
-      due_date: 'tomorrow',
-      scope: 'Class Reading',
-    }).set('Authorization', `Bearer ${studentUser.token}`);
-
-    let errorObj = JSON.parse(response.text);
-    expect(response.status).toBe(500);
-    expect(errorObj.message).toEqual('Access Denied');
+  it('allows v1 clothes create ', async () => {
+    let response = await request.post('/api/v1/clothes').send({
+      name: 'pants',
+      color: 'tan',
+      size: 'large',
+    });
+    expect(response.status).toBe(201);
+    expect(response.body.name).toEqual('pants');
   });
 
-  // it('allows assignments update by Instructor', async () => {
-  //   let response = await request.put('/api/assignments/2').send({
-  //     name: 'Reading 15',
-  //     due_date: 'tomorrow',
-  //     scope: 'Class Reading',
-  //   }).set('Authorization', `Bearer ${testUser.token}`);
+  // it('allows v2 clothes create ', async () => {
+  //   let response = await request.post('/api/v2/clothes').send({
+  //     name: 'shorts',
+  //     color: 'tan',
+  //     size: 'large',
+  //   }).set('Authorization', `Bearer ${writerUser.token}`);
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.body.name).toEqual('Reading 15');
+  //   expect(response.status).toBe(201);
+  //   expect(response.body.name).toEqual('shorts');
   // });
 
-  // it('allows assignments delete ', async () => {
-  //   let response = await request.delete('/api/assignments/1');
+  it('allows v1 read access', async () => {
+    let response = await request.get('/api/v1/clothes');
 
+    // console.log('----------read test', writerUser);
+    expect(response.status).toBe(200);
+    expect(response.body[0].name).toEqual('pants');
+  });
+
+  // it('allows v2 read access', async () => {
+  //   let response = await request.get('/api/v2/clothes').set('Authorization', `Bearer ${writerUser.token}`);
+  //   // console.log('----------read test', writerUser);
   //   expect(response.status).toBe(200);
-  //   expect(response.body).toEqual(1);
+  //   expect(response.body[1].name).toEqual('shorts');
   // });
 
-  it('restricts assignment delete by Student', async () => {
-    let response = await request.delete('/api/assignments/2').set('Authorization', `Bearer ${studentUser.token}`);
+  it.only('allows v1 read one access', async () => {
+    let response = await request.get('/api/v1/clothes/1');
+    // console.log('----------read test', writerUser);
+    expect(response.status).toBe(200);
+    expect(response.body.name).toEqual('pants');
+  });
+
+  it('allows v2 read one access', async () => {
+    let response = await request.get('/api/v2/clothes/2').set('Authorization', `Bearer ${writerUser.token}`);
+    // console.log('----------read test', writerUser);
+    expect(response.status).toBe(200);
+    expect(response.body.name).toEqual('shorts');
+  });
+
+  it('allows v1 clothes update ', async () => {
+    let response = await request.put('/api/v1/clothes/1').send({
+      name: 'pant-pants',
+      color: 'tan',
+      size: 'large',
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toEqual('pant-pants');
+  });
+
+  it('restricts v2 clothes update by writer', async () => {
+    let response = await request.put('/api/v2/clothes/2').send({
+      name: 'short-shorts',
+      color: 'tan',
+      size: 'large',
+    }).set('Authorization', `Bearer ${writerUser.token}`);
+
+    let errorObject = JSON.parse(response.text);
+    expect(response.status).toBe(500);
+    expect(errorObject.message).toEqual('Access Denied');
+  });
+
+  it('allows v2 clothes update by admin', async () => {
+    let response = await request.put('/api/v2/clothes/2').send({
+      name: 'short-shorts',
+      color: 'tan',
+      size: 'large',
+    }).set('Authorization', `Bearer ${adminUser.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toEqual('short-shorts');
+  });
+
+  it('allows v1 clothes delete ', async () => {
+    let response = await request.delete('/api/v1/clothes/1');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(1);
+  });
+
+  it('restricts v2 clothes delete by writer', async () => {
+    let response = await request.delete('/api/v2/clothes/2').set('Authorization', `Bearer ${writerUser.token}`);
     let errorObject = JSON.parse(response.text);
 
     expect(response.status).toBe(500);
     expect(errorObject.message).toEqual('Access Denied');
   });
 
-  // it('allows assignments delete by Instructor', async () => {
-  //   let response = await request.delete('/api/assignments/2').set('Authorization', `Bearer ${testUser.token}`);
+  it('allows v2 clothes delete by admin', async () => {
+    let response = await request.delete('/api/v2/clothes/2').set('Authorization', `Bearer ${adminUser.token}`);
 
-  //   expect(response.status).toBe(200);
-  //   expect(response.body).toEqual(1);
-  // });
-
-
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(1);
+  });
 });

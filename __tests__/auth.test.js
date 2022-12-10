@@ -5,7 +5,6 @@ const { db } = require('../src/models');
 const supertest = require('supertest');
 const request = supertest(server);
 
-
 beforeAll( async () => {
   await db.sync();
 });
@@ -15,24 +14,23 @@ afterAll( async () => {
 });
 
 describe('Auth Tests', () => {
-  it('allows user to signup with a POST to the /signup route', async () => {
-    let response = await request.post('/signup').send(
-      {
-        username: 'testUser',
-        password: 'pass',
-        role: 'Instructor',
-      });
+  test('allows user to signup with a POST to the /signup route', async () => {
+    let response = await request.post('/signup').send({
+      username: 'tester',
+      password: 'pass',
+      role: 'admin',
+    });
+    // depending on the code base, this might look different
+    // console.log('`````````````````````', response);
     expect(response.status).toBe(201);
-    expect(response.body.user.username).toEqual('testUser');
+    expect(response.body.user.username).toEqual('tester');
     expect(response.body.user.password).toBeTruthy();
-    // expect(response.body.user.password).toEqual('pass123');
     expect(response.body.user.password).not.toEqual('pass');
   });
-
-  it('allows user to signin with a POST to the /signin route', async () => {
+  test('allows user to signup with a POST to the /signin route', async () => {
     let response = await request.post('/signin').set('Authorization', 'Basic dGVzdGVyOnBhc3M=');
     expect(response.status).toBe(200);
-    expect(response.body.user.username).toEqual('testUser');
+    expect(response.body.user.username).toEqual('tester');
     expect(response.body.user.password).toBeTruthy();
     expect(response.body.user.password).not.toEqual('pass');
   });
