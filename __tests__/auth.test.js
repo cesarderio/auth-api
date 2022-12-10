@@ -1,5 +1,6 @@
 'use strict';
 
+// const { server } = require('../src/server');
 const { server } = require('../src/server');
 const { db } = require('../src/models');
 const supertest = require('supertest');
